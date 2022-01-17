@@ -6,6 +6,7 @@ locals {
     "cookielab.io/application" = "metrics-server",
     "cookielab.io/process" = "bootstrap"
   }
+
   daemonset_labels = merge(
     {
       "cookielab.io/terraform-module" = "datadog",
@@ -139,7 +140,7 @@ resource "kubernetes_daemonset" "datadog_agent" {
     template {
       metadata {
         name = "datadog-agent"
-        labels = local.daemonset_selector_labels
+        labels = local.daemonset_labels
       }
 
       spec {
@@ -207,6 +208,21 @@ resource "kubernetes_daemonset" "datadog_agent" {
             name = "DD_APM_ENABLED"
             value = var.datadog_agent_options_apm_enabled
           }
+          env {
+            name = "DD_LOGS_ENABLED"
+            value = var.datadog_agent_options_logs_enabled
+          }
+
+          env {
+            name = "DD_CLUSTER_NAME"
+            value = var.kubernetes_cluster_name
+          }
+
+          env {
+            name = "DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL"
+            value = var.datadog_agent_options_logs_enabled
+          }
+
 
           env {
             name = "DD_KUBERNETES_KUBELET_HOST"
@@ -218,17 +234,26 @@ resource "kubernetes_daemonset" "datadog_agent" {
           }
 
           env {
+            name = "DD_ENV"
+            value_from {
+              field_ref {
+                field_path = "metadata.labels['tags.datadoghq.com/env']"
+              }
+            }
+          }
+
+          env {
             name = "DD_KUBELET_TLS_VERIFY"
             value = var.datadog_agent_options_kubelet_tls_verify
           }
 
           resources {
-            requests {
+            requests = {
               memory = "256Mi"
               cpu = "200m"
             }
 
-            limits {
+            limits = {
               memory = "256Mi"
               cpu = "200m"
             }

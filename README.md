@@ -1,5 +1,8 @@
 # Terraform module for Kubernetes Datadog
 
+> [!WARNING]  
+> This module is no longer maintained. We recommend switching to [Helm](https://artifacthub.io/packages/helm/datadog/datadog).
+
 This module deploys [Datadog](https://docs.datadoghq.com/agent/kubernetes/daemonset_setup/) to your Kubernetes cluster.
 
 ## Usage
